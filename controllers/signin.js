@@ -16,7 +16,7 @@ export const signin = async (req, res) => {
         if(!user.emailVerified){
             try {
                 await sendMail(email, 'Email Verification from dribble', `<div><h1>Click on the link below to verify your email</h1><a href=${process.env.MAIL_VERIFICATION_LINK+"/"+user._id}>Verify Email</a></div>`);
-                return res.status(200).json({success:false,message: 'Email not verified, verification link was sent again to your email address,kindly verify your email before login'});                                           
+                return res.status(400).json({success:false,message: 'Email not verified, verification link was sent again to your email address,kindly verify your email before login'});                                           
             } catch (error) {
                 return res.status(400).json({success:false,message: 'Issue in sending email verification link , please try again changing network'});
             }
