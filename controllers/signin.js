@@ -1,6 +1,7 @@
 import User from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 import  Jwt  from 'jsonwebtoken';
+import { sendMail } from '../utils/mail.js';
 
 export const signin = async (req, res) => {
     try{
@@ -13,7 +14,12 @@ export const signin = async (req, res) => {
             return res.status(400).json({success:false,message: 'User not found'});
         }
         if(!user.emailVerified){
-            return res.status(400).json({success:false,message: 'Please verify your email before logging in'});
+            try {
+                await sendMail(email, 'Email Verification from dribble', `<div><h1>Click on the link below to verify your email</h1><a href=${process.env.MAIL_VERIFICATION_LINK+"/"+user._id}>Verify Email</a></div>`);
+                return res.status(200).json({success:false,message: 'Email not verified, verification link was sent again to your email address,kindly verify your email before login'});                                           
+            } catch (error) {
+                return res.status(400).json({success:false,message: 'Issue in sending email verification link , please try again changing network'});
+            }
         }
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch){

@@ -29,8 +29,12 @@ export const signup = async (req, res) => {
         if(!newuser){
             return res.status(400).json({success:false,message: 'User not created'});
         }
-        await sendMail(email, 'Email Verification from dribble', `<div><h1>Click on the link below to verify your email</h1><a href=${process.env.MAIL_VERIFICATION_LINK+"/"+newuser._id}>Verify Email</a></div>`);
-        res.status(200).json({success:true,message: 'User created successfully'});
+        try {
+            await sendMail(email, 'Email Verification from dribble', `<div><h1>Click on the link below to verify your email</h1><a href=${process.env.MAIL_VERIFICATION_LINK+"/"+newuser._id}>Verify Email</a></div>`);
+        } catch (error) {
+            return res.status(400).json({success:false,message: 'Issue in sending email verification link , please go to login and try again changing network'});
+        }
+        return res.status(200).json({success:true,message: 'User created successfully'});
     }catch(error){
         console.log(error.message);
         res.status(500).json({success:false,message: 'Internal Server Error'});
